@@ -30,43 +30,42 @@ import java.util.List;
 import java.util.Arrays;
 public class Hw1Grp4 {
 
-
 	public static void HBaseWrite(int row, String column, int[] column_index) throws MasterNotRunningException, ZooKeeperConnectionException, IOException {
 		Logger.getRootLogger().setLevel(Level.WARN);
 
 		String tableName = "Result";
 		HTableDescriptor htd = new HTableDescriptor(TableName.valueOf(tableName));
 
-	    // create column descriptor
-   	    HColumnDescriptor cf = new HColumnDescriptor("res");
-	    htd.addFamily(cf);
+	    	// create column descriptor
+   	    	HColumnDescriptor cf = new HColumnDescriptor("res");
+	    	htd.addFamily(cf);
 	
-	    // configure HBase
-	    Configuration configuration = HBaseConfiguration.create();
-	    HBaseAdmin hAdmin = new HBaseAdmin(configuration);
+	    	// configure HBase
+	    	Configuration configuration = HBaseConfiguration.create();
+	    	HBaseAdmin hAdmin = new HBaseAdmin(configuration);
 	
-	    if (hAdmin.tableExists(tableName)) {
-	        System.out.println("Table already exists");
-	    }
-	    else {
-	        hAdmin.createTable(htd);
-	        System.out.println("table "+tableName+ " created successfully");
-	    }
-	    hAdmin.close();
+	    	if (hAdmin.tableExists(tableName)) {
+	    	    System.out.println("Table already exists");
+	    	}
+	    	else {
+	    	    hAdmin.createTable(htd);
+	    	    System.out.println("table "+tableName+ " created successfully");
+	    	}
+	    	hAdmin.close();
 
 
-	    HTable table = new HTable(configuration,tableName);
-	    String row_s = "" + row;
-      	Put put = new Put(row_s.getBytes());
-      	String[] column_val = column.split(",");
-      	for (int i = 0; i < column_val.length; i++) {
-      		put.add("res".getBytes(),("R" + column_index[i]).getBytes(),column_val[i].getBytes());
-      	}
+	    	HTable table = new HTable(configuration,tableName);
+	    	String row_s = "" + row;
+      		Put put = new Put(row_s.getBytes());
+      		String[] column_val = column.split(",");
+      		for (int i = 0; i < column_val.length; i++) {
+      			put.add("res".getBytes(),("R" + column_index[i]).getBytes(),column_val[i].getBytes());
+      		}
 
-    	table.put(put);
-      	table.close();
-      	System.out.println("put successfully");
-	}
+    		table.put(put);
+      		table.close();
+      		System.out.println("put successfully");
+		}
 
 	
 	public static void main(String[] args) throws IOException, URISyntaxException{
@@ -78,12 +77,12 @@ public class Hw1Grp4 {
 		System.out.println("BreakPoint 1");
         
 		Configuration conf = new Configuration();
-        FileSystem fs = FileSystem.get(URI.create(file), conf);
+        	FileSystem fs = FileSystem.get(URI.create(file), conf);
 		System.out.println("HDFS breakpoint");
-	    Path path = new Path(file);
-	    FSDataInputStream in_stream = fs.open(path);
+	    	Path path = new Path(file);
+	    	FSDataInputStream in_stream = fs.open(path);
 	
-	    BufferedReader in = new BufferedReader(new InputStreamReader(in_stream));
+	    	BufferedReader in = new BufferedReader(new InputStreamReader(in_stream));
 		String s;
 		// Parse the select condition
 		String[] select_condition = (args[1].substring(7)).split(",");
@@ -142,24 +141,24 @@ public class Hw1Grp4 {
 					break;	
 			}
 		}
-	    in.close();
+	    	in.close();
 		fs.close();
-	    //parse the distinct column
-	    String[] dis_condition = (args[2].substring(9)).split(",");
-	    int[] dis_column = new int[dis_condition.length];
-	    Matcher m2;
+	    	//parse the distinct column
+	    	String[] dis_condition = (args[2].substring(9)).split(",");
+	    	int[] dis_column = new int[dis_condition.length];
+	    	Matcher m2;
 		String regEx = "[^0-9]";
 		Pattern p2 = Pattern.compile(regEx);
-	    for (int i = 0; i < dis_condition.length; i++) {
+	    	for (int i = 0; i < dis_condition.length; i++) {
 			System.out.println("dis_condition: "+dis_condition[i]);
 	    	m2 = p2.matcher(dis_condition[i]);
 	    	dis_column[i] = Integer.parseInt(m2.replaceAll("").trim());
 			System.out.println("dis_column[i]: " + dis_column[i]);
-	    }
+	    	}
 
-	    //construct a hash map
-	    String dis_value;
-	    HashMap mymap = new HashMap();
+	    	//construct a hash map
+	    	String dis_value;
+	    	HashMap mymap = new HashMap();
 		String[][] values_ss = new String[values.size()][];
 		values.toArray(values_ss);
 	        
@@ -171,17 +170,17 @@ public class Hw1Grp4 {
 	    	}
 	    	mymap.put(dis_value, null);
 			System.out.println("dis_value: "+dis_value);
-	    }
+	    	}
 
-	    //flush into HBase
-	    String key;
-	    int l = 0;
-	    Iterator iter = mymap.keySet().iterator();
-	    while (iter.hasNext()) {
-	    	key = (String)iter.next();
-	    	HBaseWrite(l, key, dis_column);
-	    	l++;
-	    }
+	    	//flush into HBase
+	    	String key;
+	    	int l = 0;
+	    	Iterator iter = mymap.keySet().iterator();
+	    	while (iter.hasNext()) {
+	    		key = (String)iter.next();
+	    		HBaseWrite(l, key, dis_column);
+	    		l++;
+	    	}
 	}
 }
 
